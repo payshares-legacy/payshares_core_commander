@@ -1,6 +1,6 @@
-require "stellar_core_commander/version"
+require "payshares_core_commander/version"
 require "active_support/all"
-require "stellar-base"
+require "payshares-base"
 require "contracts"
 require "faraday"
 require "faraday_middleware"
@@ -9,7 +9,7 @@ require "open3"
 require "sequel"
 require "pg"
 
-module StellarCoreCommander
+module PaysharesCoreCommander
   extend ActiveSupport::Autoload
 
   autoload :Commander

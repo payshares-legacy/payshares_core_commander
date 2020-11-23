@@ -1,13 +1,13 @@
 #!/usr/bin/env ruby
 
-require 'stellar_core_commander'
+require 'payshares_core_commander'
 require 'slop'
 
 def run
   $opts = Slop.parse do
-    banner 'Usage: scc -r RECIPE'
+    banner 'Usage: pcc -r RECIPE'
     
-    on 'stellar-core-bin', 'a path to a stellar-core executable (default to `which stellar-core`)', argument: true
+    on 'payshares-core-bin', 'a path to a payshares-core executable (default to `which payshares-core`)', argument: true
     on 'r', 'recipe', 'a recipe file', argument: true #, required: true
   end
 
@@ -16,7 +16,7 @@ def run
   process   = commander.make_process
 
   #run recipe
-  transactor = StellarCoreCommander::Transactor.new(process)
+  transactor = PaysharesCoreCommander::Transactor.new(process)
   process.run
   process.wait_for_ready
   transactor.run_recipe recipe
@@ -27,20 +27,20 @@ end
 
 
 def make_commander
-  stellar_core_bin = $opts[:"stellar-core-bin"]
+  payshares_core_bin = $opts[:"payshares-core-bin"]
 
-  if stellar_core_bin.blank?
-    search = `which stellar-core`.strip
+  if payshares_core_bin.blank?
+    search = `which payshares-core`.strip
 
     if $?.success?
-      stellar_core_bin = search
+      payshares_core_bin = search
     else
-      $stderr.puts "Could not find a `stellar-core` binary, please use --stellar-core-bin to specify"
+      $stderr.puts "Could not find a `payshares-core` binary, please use --payshares-core-bin to specify"
       exit 1
     end
   end
 
-  StellarCoreCommander::Commander.new(stellar_core_bin).tap do |c|
+  PaysharesCoreCommander::Commander.new(payshares_core_bin).tap do |c|
     c.cleanup_at_exit!
   end
 end

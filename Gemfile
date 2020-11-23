@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
 gemspec
 
-# gem 'stellar-base', path: "~/src/stellar/ruby-stellar-base"
-# gem 'xdr', path: "~/src/stellar/ruby-xdr"# 
+# gem 'payshares-base', path: "~/src/payshares/ruby-payshares-base"
+# gem 'xdr', path: "~/src/payshares/ruby-xdr"# 

@@ -1,9 +1,9 @@
 require 'fileutils'
-module StellarCoreCommander
+module PaysharesCoreCommander
 
 
   # 
-  # A transactor plays transactions against a stellar-core test node.
+  # A transactor plays transactions against a payshares-core test node.
   # 
   # 
   class Transactor
@@ -24,7 +24,7 @@ module StellarCoreCommander
       @process    = process
       @named      = {}.with_indifferent_access
       @unverified = []
-      account :master, Stellar::KeyPair.from_raw_seed("allmylifemyhearthasbeensearching")
+      account :master, Payshares::KeyPair.from_raw_seed("allmylifemyhearthasbeensearching")
     end
 
     Contract String => Any
@@ -35,24 +35,24 @@ module StellarCoreCommander
     # @param recipe_path [String] path to the recipe file
     # 
     def run_recipe(recipe_path)
-      raise "stellar-core not running" unless @process.running? 
+      raise "payshares-core not running" unless @process.running? 
 
       recipe_content = IO.read(recipe_path)
       instance_eval recipe_content
     end
 
 
-    Contract Symbol, Stellar::KeyPair => Any
+    Contract Symbol, Payshares::KeyPair => Any
     # 
     # Registered an account for this scenario.  Future calls may refer to
     # the name provided.
     # 
     # @param name [Symbol] the name to register the keypair at
-    # @param keypair=Stellar::KeyPair.random [Stellar::KeyPair] the keypair to use for this account
+    # @param keypair=Payshares::KeyPair.random [Payshares::KeyPair] the keypair to use for this account
     # 
-    def account(name, keypair=Stellar::KeyPair.random)
-      unless keypair.is_a?(Stellar::KeyPair)
-        raise ArgumentError, "`#{keypair.class.name}` is not `Stellar::KeyPair`"
+    def account(name, keypair=Payshares::KeyPair.random)
+      unless keypair.is_a?(Payshares::KeyPair)
+        raise ArgumentError, "`#{keypair.class.name}` is not `Payshares::KeyPair`"
       end
 
       add_named name, keypair
@@ -79,7 +79,7 @@ module StellarCoreCommander
       if options[:path]
         attrs[:path] = options[:path].map{|p| make_currency p}
       end
-      envelope = Stellar::Transaction.payment(attrs).to_envelope(from)
+      envelope = Payshares::Transaction.payment(attrs).to_envelope(from)
 
       submit_transaction envelope do |result|
         payment_result = result.result.results!.first.tr!.payment_result!
@@ -97,7 +97,7 @@ module StellarCoreCommander
     def change_trust(account, issuer, code, limit)
       account = get_account account
 
-      tx = Stellar::Transaction.change_trust({
+      tx = Payshares::Transaction.change_trust({
         account:  account,
         sequence: next_sequence(account),
         line:     make_currency([code, issuer]),
@@ -123,7 +123,7 @@ module StellarCoreCommander
         taker_gets = make_currency currencies[:with]
       end
 
-      tx = Stellar::Transaction.create_offer({
+      tx = Payshares::Transaction.create_offer({
         account:  account,
         sequence: next_sequence(account),
         taker_gets: taker_gets,
@@ -180,7 +180,7 @@ module StellarCoreCommander
       @named[name] = object
     end
 
-    Contract Stellar::TransactionEnvelope, Or[nil, Proc] => Any
+    Contract Payshares::TransactionEnvelope, Or[nil, Proc] => Any
     def submit_transaction(envelope, &after_confirmation)
       hex    = envelope.to_xdr(:hex)
       @process.submit_transaction hex
@@ -189,16 +189,16 @@ module StellarCoreCommander
       @unverified << [envelope, after_confirmation]
     end
 
-    Contract Symbol => Stellar::KeyPair
+    Contract Symbol => Payshares::KeyPair
     def get_account(name)
       @named[name].tap do |found|
-        unless found.is_a?(Stellar::KeyPair)
+        unless found.is_a?(Payshares::KeyPair)
           raise ArgumentError, "#{name.inspect} is not account"
         end
       end
     end
 
-    Contract Stellar::KeyPair => Num
+    Contract Payshares::KeyPair => Num
     def next_sequence(account)
       base_sequence  = @process.sequence_for(account)
       inflight_count = @unverified.select{|e| e.first.tx.source_account == account.public_key}.length
@@ -206,7 +206,7 @@ module StellarCoreCommander
       base_sequence + inflight_count + 1
     end
 
-    Contract Currency => [Symbol, String, Stellar::KeyPair]
+    Contract Currency => [Symbol, String, Payshares::KeyPair]
     def make_currency(input)
       code, issuer = *input
       code = code.ljust(4, "\x00")
@@ -215,7 +215,7 @@ module StellarCoreCommander
       [:iso4217, code, issuer]
     end
 
-    Contract Stellar::TransactionEnvelope => Stellar::TransactionResult
+    Contract Payshares::TransactionEnvelope => Payshares::TransactionResult
     def validate_transaction(envelope)
       raw_hash = envelope.tx.hash
       hex_hash = Convert.to_hex(raw_hash)
@@ -226,7 +226,7 @@ module StellarCoreCommander
       
       raw_result = Convert.from_base64(base64_result)
 
-      pair = Stellar::TransactionResultPair.from_xdr(raw_result)
+      pair = Payshares::TransactionResultPair.from_xdr(raw_result)
       pair.result
     end
 

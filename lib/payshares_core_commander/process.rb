@@ -1,4 +1,4 @@
-module StellarCoreCommander
+module PaysharesCoreCommander
 
   class Process
     include Contracts
@@ -22,19 +22,19 @@ module StellarCoreCommander
 
     Contract None => Any
     def forcescp
-      run_cmd "./stellar-core", ["--forcescp"]
+      run_cmd "./payshares-core", ["--forcescp"]
       raise "Could not set --forcescp" unless $?.success?
     end
 
     Contract None => Any
     def initialize_history
-      run_cmd "./stellar-core", ["--newhist", "main"]
+      run_cmd "./payshares-core", ["--newhist", "main"]
       raise "Could not initialize history" unless $?.success?
     end
 
     Contract None => Any
     def initialize_database
-      run_cmd "./stellar-core", ["--newdb"]
+      run_cmd "./payshares-core", ["--newdb"]
       raise "Could not initialize db" unless $?.success?
     end
 
@@ -52,7 +52,7 @@ module StellarCoreCommander
 
     Contract None => Any
     def write_config
-      IO.write("#{@working_dir}/stellar-core.cfg", config)
+      IO.write("#{@working_dir}/payshares-core.cfg", config)
     end
 
     Contract None => Any
@@ -73,7 +73,7 @@ module StellarCoreCommander
       raise "already running!" if running?
 
       forcescp
-      launch_stellar_core
+      launch_payshares_core
     end
 
 
@@ -89,7 +89,7 @@ module StellarCoreCommander
           break if body["info"]["state"] == "Synced!"
         end
 
-        $stderr.puts "waiting until stellar-core is synced"
+        $stderr.puts "waiting until payshares-core is synced"
         sleep 1
       end
     end
@@ -142,7 +142,7 @@ module StellarCoreCommander
       true
     end
 
-    Contract String => Stellar::TransactionResult
+    Contract String => Payshares::TransactionResult
     def submit_transaction(envelope_hex)
       response = @server.get("tx", blob: envelope_hex)
       body = ActiveSupport::JSON.decode(response.body)
@@ -153,11 +153,11 @@ module StellarCoreCommander
 
       hex_tr = body["result"]
       raw_tr = Convert.from_hex(hex_tr)
-      Stellar::TransactionResult.from_xdr(raw_tr)
+      Payshares::TransactionResult.from_xdr(raw_tr)
     end
 
 
-    Contract Stellar::KeyPair => Num
+    Contract Payshares::KeyPair => Num
     def sequence_for(account)
       row = database[:accounts].where(:accountid => account.address).first
       row[:seqnum]
@@ -198,7 +198,7 @@ module StellarCoreCommander
 
     Contract None => String
     def database_name
-      "stellar_core_tmp_#{basename}"
+      "payshares_core_tmp_#{basename}"
     end
 
     Contract None => String
@@ -225,8 +225,8 @@ module StellarCoreCommander
     Contract String, ArrayOf[String] => Maybe[Bool]
     def run_cmd(cmd, args)
       args += [{
-          out: "stellar-core.log", 
-          err: "stellar-core.log",
+          out: "payshares-core.log", 
+          err: "payshares-core.log",
         }]
 
       Dir.chdir @working_dir do
@@ -234,9 +234,9 @@ module StellarCoreCommander
       end
     end
 
-    def launch_stellar_core
+    def launch_payshares_core
       Dir.chdir @working_dir do
-        sin, sout, serr, wait = Open3.popen3("./stellar-core")
+        sin, sout, serr, wait = Open3.popen3("./payshares-core")
 
         # throwaway stdout, stderr (the logs will record any output)
         Thread.new{ until (line = sout.gets).nil? ; end }

@@ -1,5 +1,5 @@
 require 'fileutils'
-module StellarCoreCommander
+module PaysharesCoreCommander
   class Commander
     include Contracts
 
@@ -7,21 +7,21 @@ module StellarCoreCommander
     # Creates a new core commander
     # 
     Contract String => Any
-    def initialize(stellar_core_bin)
-      @stellar_core_bin = stellar_core_bin
-      raise "no file at #{stellar_core_bin}" unless File.exist?(stellar_core_bin)
+    def initialize(payshares_core_bin)
+      @payshares_core_bin = payshares_core_bin
+      raise "no file at #{payshares_core_bin}" unless File.exist?(payshares_core_bin)
 
       @processes = []
     end
 
     Contract None => Process
     def make_process
-      tmpdir = Dir.mktmpdir("scc")
+      tmpdir = Dir.mktmpdir("pcc")
 
-      identity      = Stellar::KeyPair.random
+      identity      = Payshares::KeyPair.random
       base_port     = 39132 + (@processes.length * 2)
 
-      FileUtils.cp(@stellar_core_bin, "#{tmpdir}/stellar-core")
+      FileUtils.cp(@payshares_core_bin, "#{tmpdir}/payshares-core")
       Process.new(tmpdir, base_port, identity).tap do |p|
         p.setup
         @processes << p

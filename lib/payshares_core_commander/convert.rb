@@ -1,4 +1,4 @@
-module StellarCoreCommander
+module PaysharesCoreCommander
   # 
   # Generic format conversion module
   # 
@@ -22,7 +22,7 @@ module StellarCoreCommander
     end
 
     def base58
-      Stellar::Util::Base58.stellar
+      Payshares::Util::Base58.payshares
     end
 
     extend self
