@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
 gemspec
 
-# gem 'payshares-base', path: "~/src/payshares/ruby-payshares-base"
-# gem 'xdr', path: "~/src/payshares/ruby-xdr"# 
+gem 'payshares-base', path: "../ruby-payshares-base"
+gem 'xdr', path: "../ruby-xdr"
