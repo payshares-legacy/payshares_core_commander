@@ -19,8 +19,8 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "payshares-base", "~> 0.0.1"
   spec.add_dependency "slop", "~> 3.6.0"
-  spec.add_dependency "faraday", "~> 0.9.1"
-  spec.add_dependency "faraday_middleware", "~> 0.9.1"
+  spec.add_dependency "faraday", "0.9.1"
+  spec.add_dependency "faraday_middleware", "0.9.1"
   spec.add_dependency "pg", "~> 0.18.1"   
   spec.add_dependency "sequel", "~> 4.21.0"
   spec.add_dependency "activesupport", ">= 4.0.0"
